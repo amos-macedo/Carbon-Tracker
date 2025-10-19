@@ -22,7 +22,7 @@ export const Historical = ({
 
   return (
     <div>
-      <aside className="hidden lg:block w-80 bg-[#0E1217] border-l border-gray-800 p-6">
+      <aside className="hidden lg:block w-80 h-screen  bg-[#0E1217] border-l border-gray-800 p-6">
         <div className="flex items-center gap-2 mb-6">
           <History className="w-5 h-5 text-[#00d4aa]" />
           <h3 className="font-semibold text-lg">Histórico de Cálculos</h3>
@@ -85,10 +85,17 @@ export const Historical = ({
       {open && (
         <>
           <div
-            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+            className={`lg:hidden fixed inset-0 bg-black z-40 transition-opacity duration-700 ${
+              open ? "opacity-80" : "opacity-0 pointer-events-none"
+            }`}
             onClick={() => setOpen(false)}
           />
-          <aside className="lg:hidden fixed right-0 top-0 h-full w-80 bg-[#0E1217] border-l border-gray-800 z-50 transform transition-transform duration-300">
+
+          <aside
+            className={`lg:hidden fixed top-0 right-0 h-full w-80 bg-[#0E1217] border-l border-gray-800 z-50 transform transition-transform duration-300 ${
+              open ? "translate-x-0" : "translate-x-full"
+            }`}
+          >
             <div className="p-4 h-full flex flex-col">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
@@ -102,6 +109,7 @@ export const Historical = ({
                   <X className="w-6 h-6" />
                 </button>
               </div>
+
               <div className="flex-1 overflow-y-auto">
                 <div className="space-y-3">
                   {history.map((item, index) => (
