@@ -5,15 +5,28 @@ import { EmissionData } from "@/app/page";
 import { EmissionCalculator } from "@/components/calculator-card";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 const CalculatorPage = () => {
   const router = useRouter();
+  const [previousHistory, setPreviousHistory] = useState<EmissionData[]>([]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return; // garante que estamos no client
+
+    const stored = localStorage.getItem("carbonHistory");
+    if (stored) {
+      setPreviousHistory(JSON.parse(stored));
+    }
+  }, []);
+
   const handleHome = () => {
     router.push("/");
   };
-  const stored = localStorage.getItem("carbonHistory");
-  const previousHistory: EmissionData[] = stored ? JSON.parse(stored) : [];
+
   const calculateEmission = (newEmission: EmissionData) => {
+    const stored = localStorage.getItem("carbonHistory");
+    const previousHistory: EmissionData[] = stored ? JSON.parse(stored) : [];
     const updatedHistory = [newEmission, ...previousHistory.slice(0, 9)];
 
     localStorage.setItem("carbonHistory", JSON.stringify(updatedHistory));
