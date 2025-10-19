@@ -153,3 +153,15 @@ export default function CarbonTracker() {
     </div>
   );
 }
+
+// src/components/test-api.tsx
+
+export interface Make {
+  data: {
+    id: string;
+    attributes: {
+      name: string;
+      number_of_models: number;
+    };
+  };
+}
