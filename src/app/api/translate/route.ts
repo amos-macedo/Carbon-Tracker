@@ -29,8 +29,6 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
     const translatedText = data[0]?.[0]?.[0] || text;
-
-    // Salvar no cache (expira após 1 hora)
     translationCache.set(cacheKey, translatedText);
     setTimeout(() => translationCache.delete(cacheKey), 60 * 60 * 1000);
 

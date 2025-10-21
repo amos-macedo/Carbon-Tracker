@@ -23,7 +23,8 @@ export const WeatherInfos = ({
         <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <div className="min-w-0 flex-1">
             <h1 className="text-xl font-bold truncate sm:text-2xl ">
-              {city}, {countryCode}
+              {city === "Local desconhecido" ? city : `${city},`}
+              {countryCode}
             </h1>
             <p className="text-xs capitalize opacity-80 truncate sm:text-sm ">
               {weather.description}

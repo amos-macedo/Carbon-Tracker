@@ -9,6 +9,7 @@ import { useWeather } from "@/hooks/useWeather";
 import dynamic from "next/dynamic";
 import { FavoritesCard } from "./components/favorites-card";
 import { WeatherInfos } from "./components/weather-infos";
+import toast from "react-hot-toast";
 
 // Importar InteractiveGlobe dinamicamente com SSR desabilitado
 const InteractiveGlobe = dynamic(
@@ -52,6 +53,24 @@ export default function EnhancedWeatherApp() {
     toggleFavorite,
     useMyLocation,
   } = useWeather();
+
+  useEffect(() => {
+    toast.success(dynamicPhrase, {
+      style: {
+        background: "#1e293b",
+        color: "#f1f5f9",
+        border: "1px solid #334155",
+        borderRadius: "8px",
+        fontSize: "14px",
+        padding: "12px 16px",
+      },
+      iconTheme: {
+        primary: "#10b981",
+        secondary: "#fff",
+      },
+      duration: 4000,
+    });
+  }, [dynamicPhrase]);
 
   if (loading && !weather) {
     return (

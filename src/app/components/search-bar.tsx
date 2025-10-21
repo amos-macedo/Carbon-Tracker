@@ -51,10 +51,15 @@ export const SearchBar = ({
   } = useSuggestions(cityInput, setCityInput, onHandleGetCity);
 
   useEffect(() => {
-    if (selectedCity && selectedCity !== "Local desconhecido") {
-      setCityInput(selectedCity);
+    if (selectedCity) {
+      if (selectedCity !== "Local desconhecido") {
+        setCityInput(selectedCity);
+      } else {
+        setCityInput(" ");
+      }
     }
   }, [selectedCity]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
