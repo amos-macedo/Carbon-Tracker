@@ -1,13 +1,39 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, Suspense } from "react";
 import { SearchBar } from "@/components/search-bar";
-import { InteractiveGlobe } from "@/components/interactive-globe";
 import { FavoritesCard } from "@/components/favorites-card";
 import { WeatherInfos } from "@/components/weather-infos";
 import { WeatherOverview } from "@/components/weather-overview";
 import { getTheme } from "@/utils/theme";
-import { useWeather, WeatherData } from "@/hooks/useWeather";
+import { useWeather } from "@/hooks/useWeather";
+import dynamic from "next/dynamic";
+
+// Importar InteractiveGlobe dinamicamente com SSR desabilitado
+const InteractiveGlobe = dynamic(
+  () =>
+    import("@/components/interactive-globe").then(
+      (module) => module.InteractiveGlobe
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-6 h-96 flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="text-4xl mb-4">🌍</div>
+          <p className="text-lg font-semibold">
+            Carregando globo interativo...
+          </p>
+          <p className="text-sm opacity-70 mt-2">Aguarde um momento</p>
+        </div>
+      </div>
+    ),
+    loader: () =>
+      import("@/components/interactive-globe").then(
+        (module) => module.InteractiveGlobe
+      ),
+  }
+);
 
 const detailedForecast = [
   { day: "Seg", temp: 27, high: 30, low: 22, rain: 10, icon: "sunny" },
@@ -56,23 +82,50 @@ export default function EnhancedWeatherApp() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // if (!selectedCity || !weather) return <div>Carrecando...</div>;
+  // Loading state melhorado
+  if (loading && !weather) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-400 to-cyan-300 flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p>Carregando dados do clima...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Se não tem weather data ainda, mas também não está loading
+  if (!weather) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-400 to-cyan-300 flex items-center justify-center">
+        <div className="text-white text-center">
+          <p>Não foi possível carregar os dados do clima.</p>
+          <button
+            onClick={() => handleGetCity(undefined, undefined, "São Paulo")}
+            className="mt-4 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors"
+          >
+            Tentar novamente
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main
       className={`min-h-screen bg-gradient-to-br ${getTheme({
         weather: {
-          description: weather?.description || "",
-          icon: weather?.icon || "",
-          temp: weather?.temp || 0,
-          feelsLike: weather?.feelsLike || 0,
-          humidity: weather?.humidity || 0,
-          wind: weather?.wind || 0,
-          pressure: weather?.pressure || 0,
-          rain: weather?.rain || 0,
-          pop: weather?.pop || 0,
-          sunrise: weather?.sunrise || 0,
-          sunset: weather?.sunset || 0,
+          description: weather.description,
+          icon: weather.icon,
+          temp: weather.temp,
+          feelsLike: weather.feelsLike,
+          humidity: weather.humidity,
+          wind: weather.wind,
+          pressure: weather.pressure,
+          rain: weather.rain,
+          pop: weather.pop,
+          sunrise: weather.sunrise,
+          sunset: weather.sunset,
         },
         isDayTime,
       })} text-white transition-all duration-1000 overflow-x-hidden`}
@@ -90,13 +143,26 @@ export default function EnhancedWeatherApp() {
               loading={loading}
             />
 
-            <InteractiveGlobe
-              loading={loading}
-              selectedCity={selectedCity}
-              selectedLocation={selectedLocation}
-              onHandleGetCity={handleGetCity}
-              setSelectedCity={(city) => {}}
-            />
+            {/* InteractiveGlobe com Suspense */}
+            <Suspense
+              fallback={
+                <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-6 h-96 flex items-center justify-center">
+                  <div className="text-white text-center">
+                    <div className="text-4xl mb-4">🌍</div>
+                    <p className="text-lg font-semibold">
+                      Preparando visualização 3D...
+                    </p>
+                  </div>
+                </div>
+              }
+            >
+              <InteractiveGlobe
+                loading={loading}
+                selectedCity={selectedCity}
+                selectedLocation={selectedLocation}
+                onHandleGetCity={handleGetCity}
+              />
+            </Suspense>
 
             <FavoritesCard
               favorites={favorites}
@@ -107,37 +173,13 @@ export default function EnhancedWeatherApp() {
             <WeatherInfos
               city={selectedCity}
               countryCode={countryCode}
-              weather={{
-                description: weather?.description || "",
-                icon: weather?.icon || "",
-                rain: weather?.rain || 0,
-                temp: weather?.temp || 0,
-                pop: weather?.pop || 0,
-                pressure: weather?.pressure || 0,
-                wind: weather?.wind || 0,
-                humidity: weather?.humidity || 0,
-                sunrise: weather?.sunrise || 0,
-                sunset: weather?.sunset || 0,
-                feelsLike: weather?.feelsLike || 0,
-              }}
+              weather={weather}
               isDayTime={isDayTime}
             />
 
             <WeatherOverview
               dynamicPhrase={dynamicPhrase}
-              weather={{
-                description: weather?.description || "",
-                icon: weather?.icon || "",
-                rain: weather?.rain || 0,
-                temp: weather?.temp || 0,
-                pop: weather?.pop || 0,
-                pressure: weather?.pressure || 0,
-                wind: weather?.wind || 0,
-                humidity: weather?.humidity || 0,
-                sunrise: weather?.sunrise || 0,
-                sunset: weather?.sunset || 0,
-                feelsLike: weather?.feelsLike || 0,
-              }}
+              weather={weather}
               loading={loading}
               onUseMyLocation={useMyLocation}
               isDayTime={isDayTime}

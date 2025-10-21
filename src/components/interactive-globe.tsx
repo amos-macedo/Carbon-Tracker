@@ -12,7 +12,6 @@ type InteractiveGlobeProps = {
     lng?: number,
     cityName?: string
   ) => Promise<void>;
-  setSelectedCity: (city: string) => void;
 };
 
 export const InteractiveGlobe = ({
@@ -20,7 +19,6 @@ export const InteractiveGlobe = ({
   selectedCity,
   selectedLocation,
   onHandleGetCity,
-  setSelectedCity,
 }: InteractiveGlobeProps) => {
   const globeMarkers = selectedLocation
     ? [

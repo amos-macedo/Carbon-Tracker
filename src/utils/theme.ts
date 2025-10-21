@@ -3,7 +3,7 @@ import { WeatherData } from "@/hooks/useWeather";
   
   
   type props = {
-    weather: WeatherData | null ;
+    weather: WeatherData ;
     isDayTime: boolean;
   }
   export const getTheme = ({ weather, isDayTime }: props) => {

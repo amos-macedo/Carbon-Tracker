@@ -204,18 +204,24 @@ export const useWeather = (): UseWeatherReturn => {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
+            // CORREÇÃO: Setar userLocation aqui também
             setUserLocation({ lat: latitude, lng: longitude });
+            setSelectedLocation({ lat: latitude, lng: longitude });
             handleGetCity(latitude, longitude);
           },
           (error) => {
             // Se falhar (permissão negada ou erro), usa São Paulo como fallback
             console.log("Localização não disponível, usando São Paulo como fallback");
+            // CORREÇÃO: Setar selectedLocation para São Paulo também
+            setSelectedLocation({ lat: -23.5505, lng: -46.6333 }); // Coordenadas de São Paulo
             handleGetCity(undefined, undefined, "São Paulo");
           },
           { enableHighAccuracy: true, timeout: 10000 }
         );
       } else {
         // Geolocalização não suportada, usa São Paulo
+        // CORREÇÃO: Setar selectedLocation para São Paulo
+        setSelectedLocation({ lat: -23.5505, lng: -46.6333 }); // Coordenadas de São Paulo
         handleGetCity(undefined, undefined, "São Paulo");
       }
     };
