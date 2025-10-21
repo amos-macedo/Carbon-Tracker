@@ -149,12 +149,13 @@ export const SearchBar = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const API_KEY = process.env.API_KEY;
+
   const handleInputChange = async (value: string) => {
     setCityInput(value);
 
     if (value.length > 2) {
       try {
-        const API_KEY = process.env.API_KEY;
         const response = await fetch(
           `http://api.openweathermap.org/geo/1.0/direct?q=${value}&limit=5&appid=${API_KEY}`
         );
