@@ -1,26 +1,24 @@
-// src/app/api/translate/route.ts - ENDPOINT COM VALOR
 import { NextRequest } from 'next/server';
 
-// Cache simples em memória
 const translationCache = new Map();
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const text = searchParams.get('text');
-    const targetLang = searchParams.get('targetLang');
+    const targetLang = searchParams.get('targetLang') 
+
+
+
 
     if (!text || !targetLang) {
       return Response.json({ error: "Missing parameters" }, { status: 400 });
     }
 
-    // Verificar cache
     const cacheKey = `${text}-${targetLang}`;
     if (translationCache.has(cacheKey)) {
       return Response.json({ translatedText: translationCache.get(cacheKey) });
     }
-
-    // Chamar Google Translate
     const response = await fetch(
       `https://translate.googleapis.com/translate_a/single?client=gtx&sl=pt&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`
     );

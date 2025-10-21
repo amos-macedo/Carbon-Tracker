@@ -1,8 +1,8 @@
 import { CloudRain, Droplets, Thermometer, Wind } from "lucide-react";
-import { Card, CardContent } from "./ui/card";
-import { Badge } from "./ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { getWeatherIconComponent } from "@/utils/weatherIcons";
-import { WeatherData } from "@/hooks/useWeather";
+import { WeatherData } from "@/types/api";
 
 type WeatherInfosProps = {
   city: string;
@@ -30,14 +30,16 @@ export const WeatherInfos = ({
             </p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0 sm:gap-3">
-            <img
-              key={""}
-              src={`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`}
-              alt={`Bandeira ${countryCode}`}
-              className="rounded-sm shadow-md w-6 h-4 sm:w-8 sm:h-6 lg:w-10 lg:h-7"
-              width={40}
-              height={40}
-            />
+            {countryCode && (
+              <img
+                key={""}
+                src={`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`}
+                alt={`Bandeira ${countryCode}`}
+                className="rounded-sm shadow-md w-6 h-4 sm:w-8 sm:h-6 lg:w-10 lg:h-7"
+                width={40}
+                height={40}
+              />
+            )}
             <Badge variant="secondary" className="text-black text-xs px-2 py-1">
               {isDayTime ? "☀️ Dia" : "🌙 Noite"}
             </Badge>

@@ -1,18 +1,19 @@
 "use client";
 
 import React, { useEffect, useRef, Suspense } from "react";
-import { SearchBar } from "@/components/search-bar";
-import { FavoritesCard } from "@/components/favorites-card";
-import { WeatherInfos } from "@/components/weather-infos";
-import { WeatherOverview } from "@/components/weather-overview";
+import { SearchBar } from "@/app/components/search-bar";
+
+import { WeatherOverview } from "@/app/components/weather-overview";
 import { getTheme } from "@/utils/theme";
 import { useWeather } from "@/hooks/useWeather";
 import dynamic from "next/dynamic";
+import { FavoritesCard } from "./components/favorites-card";
+import { WeatherInfos } from "./components/weather-infos";
 
 // Importar InteractiveGlobe dinamicamente com SSR desabilitado
 const InteractiveGlobe = dynamic(
   () =>
-    import("@/components/interactive-globe").then(
+    import("./components/interactive-globe").then(
       (module) => module.InteractiveGlobe
     ),
   {
@@ -29,29 +30,13 @@ const InteractiveGlobe = dynamic(
       </div>
     ),
     loader: () =>
-      import("@/components/interactive-globe").then(
+      import("./components/interactive-globe").then(
         (module) => module.InteractiveGlobe
       ),
   }
 );
 
-const detailedForecast = [
-  { day: "Seg", temp: 27, high: 30, low: 22, rain: 10, icon: "sunny" },
-  { day: "Ter", temp: 28, high: 31, low: 23, rain: 20, icon: "cloud" },
-  { day: "Qua", temp: 29, high: 33, low: 24, rain: 60, icon: "rain" },
-  { day: "Qui", temp: 26, high: 29, low: 21, rain: 80, icon: "storm" },
-  { day: "Sex", temp: 25, high: 28, low: 20, rain: 30, icon: "cloud" },
-];
-
-const hourlyForecast = Array.from({ length: 12 }, (_, i) => ({
-  hour: `${i * 2}:00`,
-  temp: 20 + Math.random() * 10,
-  rain: Math.random() * 100,
-}));
-
 export default function EnhancedWeatherApp() {
-  const suggestionsRef = useRef<HTMLDivElement>(null);
-
   const {
     selectedCity,
     countryCode,
@@ -60,29 +45,14 @@ export default function EnhancedWeatherApp() {
     loading,
     favorites,
     selectedLocation,
-    userLocation,
     isDayTime,
+    detailedForecast,
+    hourlyForecast,
     handleGetCity,
     toggleFavorite,
     useMyLocation,
-    setFavorites,
   } = useWeather();
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        suggestionsRef.current &&
-        !suggestionsRef.current.contains(event.target as Node)
-      ) {
-        // Se você tiver algum estado de UI específico da página
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Loading state melhorado
   if (loading && !weather) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-400 to-cyan-300 flex items-center justify-center">
@@ -94,7 +64,6 @@ export default function EnhancedWeatherApp() {
     );
   }
 
-  // Se não tem weather data ainda, mas também não está loading
   if (!weather) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-400 to-cyan-300 flex items-center justify-center">
@@ -114,19 +83,7 @@ export default function EnhancedWeatherApp() {
   return (
     <main
       className={`min-h-screen bg-gradient-to-br ${getTheme({
-        weather: {
-          description: weather.description,
-          icon: weather.icon,
-          temp: weather.temp,
-          feelsLike: weather.feelsLike,
-          humidity: weather.humidity,
-          wind: weather.wind,
-          pressure: weather.pressure,
-          rain: weather.rain,
-          pop: weather.pop,
-          sunrise: weather.sunrise,
-          sunset: weather.sunset,
-        },
+        weather,
         isDayTime,
       })} text-white transition-all duration-1000 overflow-x-hidden`}
     >
@@ -141,9 +98,9 @@ export default function EnhancedWeatherApp() {
               onToggleFavorite={toggleFavorite}
               onUseMyLocation={useMyLocation}
               loading={loading}
+              selectedCity={selectedCity}
             />
 
-            {/* InteractiveGlobe com Suspense */}
             <Suspense
               fallback={
                 <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-6 h-96 flex items-center justify-center">

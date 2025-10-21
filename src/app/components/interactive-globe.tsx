@@ -8,10 +8,10 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapPin, Globe as GlobeIcon, Map as MapIcon } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useMemo, useState } from "react";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import L from "leaflet";
 
 type InteractiveMapProps = {
