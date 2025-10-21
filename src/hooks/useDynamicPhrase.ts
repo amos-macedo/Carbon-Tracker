@@ -10,7 +10,7 @@ export const useDynamicPhrase = () => {
 
     try {
       const response = await fetch(
-        `/api/translate?text=${encodeURIComponent(text)}&targetLang=${targetLang}`
+        `/api/translate?text=${encodeURIComponent(text)}&targetLang=${targetLang === '' ? 'pt' : targetLang}`
       );
       
       if (!response.ok) throw new Error('Translation failed');
