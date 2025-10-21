@@ -56,12 +56,24 @@ export default function EnhancedWeatherApp() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  if (!selectedCity || !weather) return <div>Carrecando...</div>;
+  // if (!selectedCity || !weather) return <div>Carrecando...</div>;
 
   return (
     <main
       className={`min-h-screen bg-gradient-to-br ${getTheme({
-        weather: weather ?? null,
+        weather: {
+          description: weather?.description || "",
+          icon: weather?.icon || "",
+          temp: weather?.temp || 0,
+          feelsLike: weather?.feelsLike || 0,
+          humidity: weather?.humidity || 0,
+          wind: weather?.wind || 0,
+          pressure: weather?.pressure || 0,
+          rain: weather?.rain || 0,
+          pop: weather?.pop || 0,
+          sunrise: weather?.sunrise || 0,
+          sunset: weather?.sunset || 0,
+        },
         isDayTime,
       })} text-white transition-all duration-1000 overflow-x-hidden`}
     >
@@ -95,7 +107,19 @@ export default function EnhancedWeatherApp() {
             <WeatherInfos
               city={selectedCity}
               countryCode={countryCode}
-              weather={weather as WeatherData}
+              weather={{
+                description: weather?.description || "",
+                icon: weather?.icon || "",
+                rain: weather?.rain || 0,
+                temp: weather?.temp || 0,
+                pop: weather?.pop || 0,
+                pressure: weather?.pressure || 0,
+                wind: weather?.wind || 0,
+                humidity: weather?.humidity || 0,
+                sunrise: weather?.sunrise || 0,
+                sunset: weather?.sunset || 0,
+                feelsLike: weather?.feelsLike || 0,
+              }}
               isDayTime={isDayTime}
             />
 
