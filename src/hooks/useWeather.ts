@@ -20,7 +20,7 @@ export interface WeatherData {
 interface UseWeatherReturn {
   selectedCity: string;
   countryCode: string;
-  weather: WeatherData;
+  weather: WeatherData | null;
   dynamicPhrase: string;
   loading: boolean;
   favorites: string[];
@@ -37,19 +37,7 @@ interface UseWeatherReturn {
 export const useWeather = (): UseWeatherReturn => {
   const [selectedCity, setSelectedCity] = useState("São Paulo");
   const [countryCode, setCountryCode] = useState("BR");
-  const [weather, setWeather] = useState<WeatherData>({
-    temp: 26,
-    feelsLike: 28,
-    humidity: 60,
-    wind: 10,
-    description: "Céu limpo e ensolarado",
-    icon: "sunny",
-    pressure: 1013,
-    rain: 0,
-    pop: 0,
-    sunrise: 0,
-    sunset: 0,
-  });
+  const [weather, setWeather] = useState<WeatherData | null>(null);
   const [dynamicPhrase, setDynamicPhrase] = useState("🌞 Um ótimo dia para caminhar e aproveitar o sol!");
   const [loading, setLoading] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -57,24 +45,24 @@ export const useWeather = (): UseWeatherReturn => {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isDayTime, setIsDayTime] = useState(true);
 
-const translateText = async (text: string, targetLang: string): Promise<string> => {
-  if (targetLang === 'pt') return text;
+  const translateText = async (text: string, targetLang: string): Promise<string> => {
+    if (targetLang === 'pt') return text;
 
-  try {
-    const response = await fetch(
-      `/api/translate?text=${encodeURIComponent(text)}&targetLang=${targetLang}`
-    );
-    
-    if (!response.ok) throw new Error('Translation failed');
-    
-    const data = await response.json();
-    return data.translatedText || text;
-    
-  } catch (error) {
-    console.warn('Erro na tradução:', error);
-    return text;
-  }
-};
+    try {
+      const response = await fetch(
+        `/api/translate?text=${encodeURIComponent(text)}&targetLang=${targetLang}`
+      );
+      
+      if (!response.ok) throw new Error('Translation failed');
+      
+      const data = await response.json();
+      return data.translatedText || text;
+      
+    } catch (error) {
+      console.warn('Erro na tradução:', error);
+      return text;
+    }
+  };
 
   const getTemperatureCategory = (temp: number) => {
     if (temp >= 30) return "hot";
@@ -172,6 +160,12 @@ const translateText = async (text: string, targetLang: string): Promise<string> 
   const useMyLocation = useCallback(() => {
     setLoading(true);
 
+    // Verificar se estamos no cliente
+    if (typeof window === 'undefined') {
+      setLoading(false);
+      return;
+    }
+
     if (!navigator.geolocation) {
       alert("Geolocalização não é suportada pelo seu navegador");
       setLoading(false);
@@ -181,7 +175,7 @@ const translateText = async (text: string, targetLang: string): Promise<string> 
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        setLoading(false);
+        setUserLocation({ lat: latitude, lng: longitude });
         handleGetCity(latitude, longitude);
       },
       (error) => {
@@ -189,20 +183,53 @@ const translateText = async (text: string, targetLang: string): Promise<string> 
         let errorMsg = "Erro ao obter localização";
         if (error.code === error.PERMISSION_DENIED) {
           errorMsg = "Permissão de localização negada. Ative nas configurações do navegador.";
+          // Se negar a localização, busca São Paulo como fallback
+          handleGetCity(undefined, undefined, "São Paulo");
+        } else {
+          alert(errorMsg);
         }
-        alert(errorMsg);
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
   }, [handleGetCity]);
 
+  // Efeito para carregar dados automaticamente no início
+  useEffect(() => {
+    // Não executar no servidor
+    if (typeof window === 'undefined') return;
+
+    const loadInitialWeather = async () => {
+      // Tenta usar a localização atual primeiro
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            setUserLocation({ lat: latitude, lng: longitude });
+            handleGetCity(latitude, longitude);
+          },
+          (error) => {
+            // Se falhar (permissão negada ou erro), usa São Paulo como fallback
+            console.log("Localização não disponível, usando São Paulo como fallback");
+            handleGetCity(undefined, undefined, "São Paulo");
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      } else {
+        // Geolocalização não suportada, usa São Paulo
+        handleGetCity(undefined, undefined, "São Paulo");
+      }
+    };
+
+    loadInitialWeather();
+  }, [handleGetCity]);
+
   // Efeito para dia/noite
   useEffect(() => {
-    if (weather.sunrise && weather.sunset) {
+    if (weather?.sunrise && weather?.sunset) {
       const now = Math.floor(Date.now() / 1000);
       setIsDayTime(now > weather.sunrise && now < weather.sunset);
     }
-  }, [weather.sunrise, weather.sunset]);
+  }, [weather?.sunrise, weather?.sunset]);
 
   return {
     // Estados

@@ -2,12 +2,12 @@
 
 import React, { useEffect, useRef } from "react";
 import { SearchBar } from "@/components/search-bar";
-import { InteractiveGlobe } from "@/components/interative-globe";
+import { InteractiveGlobe } from "@/components/interactive-globe";
 import { FavoritesCard } from "@/components/favorites-card";
 import { WeatherInfos } from "@/components/weather-infos";
 import { WeatherOverview } from "@/components/weather-overview";
 import { getTheme } from "@/utils/theme";
-import { useWeather } from "@/hooks/useWeather";
+import { useWeather, WeatherData } from "@/hooks/useWeather";
 
 const detailedForecast = [
   { day: "Seg", temp: 27, high: 30, low: 22, rain: 10, icon: "sunny" },
@@ -56,10 +56,12 @@ export default function EnhancedWeatherApp() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  if (!selectedCity || !weather) return <div>Carrecando...</div>;
+
   return (
     <main
       className={`min-h-screen bg-gradient-to-br ${getTheme({
-        weather,
+        weather: weather ?? null,
         isDayTime,
       })} text-white transition-all duration-1000 overflow-x-hidden`}
     >
@@ -93,18 +95,24 @@ export default function EnhancedWeatherApp() {
             <WeatherInfos
               city={selectedCity}
               countryCode={countryCode}
-              weather={weather}
+              weather={weather as WeatherData}
               isDayTime={isDayTime}
             />
 
             <WeatherOverview
               dynamicPhrase={dynamicPhrase}
               weather={{
-                description: weather.description,
-                icon: weather.icon,
-                main: weather.description,
-                id: 0,
-                pop: weather.pop,
+                description: weather?.description || "",
+                icon: weather?.icon || "",
+                rain: weather?.rain || 0,
+                temp: weather?.temp || 0,
+                pop: weather?.pop || 0,
+                pressure: weather?.pressure || 0,
+                wind: weather?.wind || 0,
+                humidity: weather?.humidity || 0,
+                sunrise: weather?.sunrise || 0,
+                sunset: weather?.sunset || 0,
+                feelsLike: weather?.feelsLike || 0,
               }}
               loading={loading}
               onUseMyLocation={useMyLocation}

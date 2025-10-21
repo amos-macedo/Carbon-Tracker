@@ -15,6 +15,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Badge } from "./ui/badge";
 import { useRef, useState, useEffect } from "react";
 import { COUNTRY_TO_LANGUAGE } from "@/utils/country-lng";
+
 type SearchBarProps = {
   isFavorited: boolean;
   onHandleGetCity: (
@@ -35,16 +36,46 @@ interface Suggestion {
   state: string;
 }
 
+// Interfaces para Web Speech API
+interface SpeechRecognitionResult {
+  readonly [index: number]: SpeechRecognitionAlternative;
+  readonly length: number;
+  readonly isFinal: boolean;
+}
+
+interface SpeechRecognitionResultList {
+  readonly [index: number]: SpeechRecognitionResult;
+  readonly length: number;
+}
+
+interface SpeechRecognitionEvent extends Event {
+  readonly results: SpeechRecognitionResultList;
+  readonly resultIndex: number;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  readonly error: string;
+}
+
 interface SpeechRecognition extends EventTarget {
   start(): void;
   stop(): void;
+  abort(): void;
   onstart: (() => void) | null;
-  onresult: ((event: { results: SpeechRecognitionResultList }) => void) | null;
-  onerror: ((event: { error: any }) => void) | null;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
   onend: (() => void) | null;
   lang: string;
   continuous: boolean;
   interimResults: boolean;
+}
+
+// Extendendo a interface Window para incluir as propriedades de speech recognition
+declare global {
+  interface Window {
+    SpeechRecognition: typeof SpeechRecognition;
+    webkitSpeechRecognition: typeof SpeechRecognition;
+  }
 }
 
 export const SearchBar = ({
@@ -70,11 +101,10 @@ export const SearchBar = ({
   useEffect(() => {
     if (typeof window !== "undefined") {
       const SpeechRecognition =
-        (window as any).SpeechRecognition ||
-        (window as any).webkitSpeechRecognition;
+        window.SpeechRecognition || window.webkitSpeechRecognition;
 
       if (SpeechRecognition) {
-        const recognition: SpeechRecognition = new SpeechRecognition();
+        const recognition = new SpeechRecognition();
         recognition.continuous = false;
         recognition.interimResults = false;
         recognition.lang = "pt-BR";
@@ -84,13 +114,13 @@ export const SearchBar = ({
           setVoiceResponse("🎤 Ouvindo...");
         };
 
-        recognition.onresult = (event: any) => {
+        recognition.onresult = (event: SpeechRecognitionEvent) => {
           const transcript = event.results[0][0].transcript;
           setVoiceResponse(`🎯 Você disse: "${transcript}"`);
           processVoiceCommand(transcript);
         };
 
-        recognition.onerror = (event: any) => {
+        recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
           console.error("Erro no reconhecimento de voz:", event.error);
           setVoiceResponse(`❌ Erro: ${event.error}`);
           setIsListening(false);
@@ -100,7 +130,7 @@ export const SearchBar = ({
           setIsListening(false);
         };
 
-        setSpeechRecognition(recognition);
+        setSpeechRecognition(recognition as SpeechRecognition);
       }
     }
   }, []);
@@ -209,6 +239,11 @@ export const SearchBar = ({
               onChange={(e) => handleInputChange(e.target.value)}
               onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
               className="bg-white/20 backdrop-blur-md border-white/30 text-white placeholder-white/70 flex-1 min-w-0 pl-10 pr-20"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  onHandleGetCity(undefined, undefined, cityInput);
+                }
+              }}
             />
             <Search
               size={16}
@@ -221,7 +256,7 @@ export const SearchBar = ({
               size="sm"
               onClick={toggleVoiceRecognition}
               disabled={isSpeaking}
-              className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 h-8 w-8 ${
+              className={`absolute right-2 top-1/2 cursor-pointer transform -translate-y-1/2 p-1 h-8 w-8 ${
                 isListening
                   ? "bg-red-500/80 text-white"
                   : isSpeaking
@@ -272,13 +307,13 @@ export const SearchBar = ({
               )}
             </AnimatePresence>
           </div>
-
+          {/* 
           <Button
             onClick={() => onHandleGetCity(undefined, undefined, cityInput)}
             className="bg-white/20 hover:bg-white/30 flex-shrink-0"
           >
             🔍
-          </Button>
+          </Button> */}
         </div>
 
         <div className="flex gap-2 flex-shrink-0">
@@ -286,7 +321,7 @@ export const SearchBar = ({
             variant="outline"
             onClick={onUseMyLocation}
             disabled={loading}
-            className="bg-white/20 hover:bg-white/30 flex-shrink-0"
+            className="bg-white/20 cursor-pointer hover:bg-white/30 flex-shrink-0"
           >
             {loading ? (
               <Loader2 size={16} className="animate-spin" />
@@ -297,7 +332,7 @@ export const SearchBar = ({
           <Button
             variant="outline"
             onClick={onToggleFavorite}
-            className="bg-white/20 hover:bg-white/30"
+            className="bg-white/20 hover:bg-white/30 cursor-pointer"
           >
             <Star size={16} className={isFavorited ? "fill-yellow-400" : ""} />
           </Button>

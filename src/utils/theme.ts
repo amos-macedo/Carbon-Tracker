@@ -1,9 +1,9 @@
+import { WeatherData } from "@/hooks/useWeather";
+
   
   
   type props = {
-    weather: {
-      icon: string;
-    };
+    weather: WeatherData | null ;
     isDayTime: boolean;
   }
   export const getTheme = ({ weather, isDayTime }: props) => {
@@ -19,5 +19,5 @@
       storm: "from-purple-700 via-purple-800 to-gray-900",
       fog: "from-gray-400 via-gray-500 to-gray-600",
     };
-    return baseThemes[weather.icon] || baseThemes.sunny;
+    return baseThemes[weather?.icon as string] || baseThemes.sunny;
   };

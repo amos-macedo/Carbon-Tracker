@@ -1,15 +1,7 @@
-import {
-  Calendar,
-  CloudRain,
-  Droplets,
-  Navigation,
-  Thermometer,
-  Wind,
-} from "lucide-react";
+import { Calendar, Navigation } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { getWeatherIconComponent } from "@/utils/weatherIcons";
-import Image from "next/image";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import {
   Bar,

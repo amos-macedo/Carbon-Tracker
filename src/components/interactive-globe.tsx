@@ -46,7 +46,7 @@ export const InteractiveGlobe = ({
         </Badge>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="h-[300px] sm:h-[400px] lg:h-[500px] rounded-lg overflow-hidden relative w-full">
+        <div className="flex items-center justify-center h-[300px] sm:h-[400px] lg:h-[500px] rounded-lg overflow-hidden relative w-full">
           {loading && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
               <div className="bg-white/20 backdrop-blur-md rounded-lg p-6">
