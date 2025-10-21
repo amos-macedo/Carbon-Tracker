@@ -1,38 +1,111 @@
-export interface VehicleMake {
-  id: string;
-  type: string;
-  attributes: {
-    name: string;
-    number_of_models: number;
+
+export type WeatherData = {
+  pop: number;
+  uvIndex: number;
+  windSpeed: number;
+  pressure: number;
+  humidity: number;
+  feelsLike: number;
+  visibility: number;
+  temp: number;
+  description: string;
+  sunrise: number;
+  sunset: number;
+  icon: string;
+  lat: number;
+  lon: number;
+  wind: number;
+  rain?: number; 
+};
+
+export type DetailedForecast = {
+  day: string;
+  temp: number;
+  high: number;
+  low: number;
+  rain: number;
+  icon: string;
+  humidity: number;
+  windSpeed: number;
+  pressure: number;
+};
+
+export type HourlyForecast = {
+  hour: string;
+  temp: number;
+  rain: number;
+  humidity: number;
+  windSpeed: number;
+  feelsLike: number;
+};
+
+// types/api.ts - Adicione esses tipos
+export interface OpenWeatherCurrent {
+  coord: {
+    lat: number;
+    lon: number;
+  };
+  weather: Array<{
+    main: string;
+    description: string;
+    icon: string;
+  }>;
+  main: {
+    temp: number;
+    feels_like: number;
+    humidity: number;
+    pressure: number;
+    temp_max: number;
+    temp_min: number;
+  };
+  wind: {
+    speed: number;
+  };
+  rain?: {
+    "1h"?: number;
+    "3h"?: number;
+  };
+  sys: {
+    country: string;
+    sunrise: number;
+    sunset: number;
+  };
+  visibility: number;
+  name: string;
+  pop?: number;
+  uvi?: number;
+}
+
+export interface OpenWeatherForecastItem {
+  dt: number;
+  main: {
+    temp: number;
+    feels_like: number;
+    temp_min: number;
+    temp_max: number;
+    pressure: number;
+    humidity: number;
+  };
+  weather: Array<{
+    main: string;
+    description: string;
+    icon: string;
+  }>;
+  wind: {
+    speed: number;
+  };
+  pop: number;
+  rain?: {
+    "3h"?: number;
   };
 }
 
-export interface VehicleModel {
-    data : {
-     id: string;
-     type: string;
-     attributes: {
-         name: string;
-         year: number;
-         vehicle_make: string;
-     };
-}
+export interface OpenWeatherForecast {
+  list: OpenWeatherForecastItem[];
 }
 
-export interface EmissionEstimate {
-  id: string;
-  type: string;
-  attributes: {
-    distance_value: number;
-    vehicle_make: string;
-    vehicle_model: string;
-    vehicle_year: number;
-    vehicle_model_id: string;
-    distance_unit: string;
-    estimated_at: string;
-    carbon_g: number;
-    carbon_lb: number;
-    carbon_kg: number;
-    carbon_mt: number;
-  };
+export interface OpenWeatherResponse {
+  current: OpenWeatherCurrent;
+  forecast: OpenWeatherForecast;
+  error?: string;
 }

@@ -1,4 +1,5 @@
-import { WeatherData } from "@/hooks/useWeather";
+import { WeatherData } from "@/types/api";
+
 
   
   
