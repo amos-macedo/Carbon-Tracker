@@ -154,7 +154,7 @@ export const SearchBar = ({
 
     if (value.length > 2) {
       try {
-        const API_KEY = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
+        const API_KEY = process.env.API_KEY;
         const response = await fetch(
           `http://api.openweathermap.org/geo/1.0/direct?q=${value}&limit=5&appid=${API_KEY}`
         );
