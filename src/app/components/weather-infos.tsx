@@ -7,6 +7,7 @@ import { WeatherData } from "@/types/api";
 type WeatherInfosProps = {
   city: string;
   countryCode: string;
+  state?: string;
   weather: WeatherData;
   isDayTime: boolean;
 };
@@ -14,6 +15,7 @@ type WeatherInfosProps = {
 export const WeatherInfos = ({
   city,
   countryCode,
+  state,
   weather,
   isDayTime,
 }: WeatherInfosProps) => {
@@ -23,8 +25,8 @@ export const WeatherInfos = ({
         <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <div className="min-w-0 flex-1">
             <h1 className="text-xl font-bold truncate sm:text-2xl ">
-              {city === "Local desconhecido" ? city : `${city},`}
-              {countryCode}
+              {city}
+              {state && `, ${state}`}
             </h1>
             <p className="text-xs capitalize opacity-80 truncate sm:text-sm ">
               {weather.description}
@@ -32,14 +34,17 @@ export const WeatherInfos = ({
           </div>
           <div className="flex items-center gap-2 flex-shrink-0 sm:gap-3">
             {countryCode && (
-              <img
-                key={""}
-                src={`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`}
-                alt={`Bandeira ${countryCode}`}
-                className="rounded-sm shadow-md w-6 h-4 sm:w-8 sm:h-6 lg:w-10 lg:h-7"
-                width={40}
-                height={40}
-              />
+              <>
+                <img
+                  key={""}
+                  src={`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`}
+                  alt={`Bandeira ${countryCode}`}
+                  className="rounded-sm shadow-md w-6 h-4 sm:w-8 sm:h-6 lg:w-10 lg:h-7"
+                  width={40}
+                  height={40}
+                />
+                {countryCode}
+              </>
             )}
             <Badge variant="secondary" className="text-black text-xs px-2 py-1">
               {isDayTime ? "☀️ Dia" : "🌙 Noite"}

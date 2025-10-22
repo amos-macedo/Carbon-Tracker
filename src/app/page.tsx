@@ -38,6 +38,7 @@ const InteractiveGlobe = dynamic(
 export default function EnhancedWeatherApp() {
   const {
     selectedCity,
+    selectedState,
     countryCode,
     weather,
     dynamicPhrase,
@@ -53,7 +54,8 @@ export default function EnhancedWeatherApp() {
   } = useWeather();
 
   useEffect(() => {
-    toast.success(dynamicPhrase);
+    if (dynamicPhrase.dynamicPhrase === "") return;
+    toast.success(dynamicPhrase.dynamicPhrase);
   }, [dynamicPhrase]);
 
   if (loading && !weather) {
@@ -132,6 +134,7 @@ export default function EnhancedWeatherApp() {
           <div className="flex-1 space-y-4 min-w-0 max-w-full">
             <WeatherInfos
               city={selectedCity}
+              state={selectedState}
               countryCode={countryCode}
               weather={weather}
               isDayTime={isDayTime}

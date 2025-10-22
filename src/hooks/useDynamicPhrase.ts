@@ -2,8 +2,15 @@ import { useState, useCallback } from 'react';
 import { COUNTRY_TO_LANGUAGE } from '@/utils/country-lng';
 import { BASE_PHRASES } from '@/utils/baseFhrase';
 
+export type DynamicPhraseType = {
+  dynamicPhrase: string;
+  ptVersion: string;
+}
 export const useDynamicPhrase = () => {
-  const [dynamicPhrase, setDynamicPhrase] = useState("");
+  const [dynamicPhrase, setDynamicPhrase] = useState<DynamicPhraseType >( {
+    dynamicPhrase: '',
+    ptVersion: ''
+  });
 
   const translateText = async (text: string, targetLang: string): Promise<string> => {
     if (targetLang === 'pt') return text;
@@ -23,6 +30,14 @@ export const useDynamicPhrase = () => {
       return text;
     }
   };
+  const cleanPhrase = (text: string): string => {
+
+    return text
+      .replace(/^\p{Emoji}\s*/u, '')  
+      .replace(/[.!?]\s*$/, '')        
+      .trim();
+  };
+
 
   const getTemperatureCategory = (temp: number) => {
     if (temp >= 30) return "hot";
@@ -36,17 +51,20 @@ export const useDynamicPhrase = () => {
     const category = getTemperatureCategory(temp);
     const phrases = BASE_PHRASES[category as keyof typeof BASE_PHRASES];
     const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
-    const targetLanguage = COUNTRY_TO_LANGUAGE[countryCode] || "pt";
+    const targetLanguage = countryCode ? (COUNTRY_TO_LANGUAGE[countryCode] || "pt") : "pt";
+
+
+    const cleanedPhrase = cleanPhrase(randomPhrase);
 
     if (targetLanguage !== "pt") {
       try {
         const translatedPhrase = await translateText(randomPhrase, targetLanguage);
-        setDynamicPhrase(translatedPhrase);
+        setDynamicPhrase({ dynamicPhrase: translatedPhrase, ptVersion: cleanedPhrase });
       } catch (error) {
-        setDynamicPhrase(randomPhrase);
+        setDynamicPhrase({ dynamicPhrase: randomPhrase, ptVersion: cleanedPhrase });
       }
     } else {
-      setDynamicPhrase(randomPhrase);
+      setDynamicPhrase({ dynamicPhrase: randomPhrase, ptVersion: "" });
     }
   }, []);
 

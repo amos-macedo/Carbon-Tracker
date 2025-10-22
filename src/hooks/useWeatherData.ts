@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react';
-import { WeatherData, DetailedForecast, HourlyForecast, OpenWeatherResponse, OpenWeatherForecastItem } from '@/types/api';
+import { WeatherData, DetailedForecast, HourlyForecast, OpenWeatherResponse, OpenWeatherForecastItem, LocationData } from '@/types/api';
 import { getWeatherIcon } from '@/utils/weatherIcons';
 
 interface UseWeatherDataReturn {
   selectedCity: string;
+  selectedState: string;
   countryCode: string;
   weather: WeatherData | null;
   detailedForecast: DetailedForecast[];
@@ -17,6 +18,7 @@ interface UseWeatherDataReturn {
 
 export const useWeatherData = (): UseWeatherDataReturn => {
   const [selectedCity, setSelectedCity] = useState("São Paulo");
+  const [selectedState, setSelectedState] = useState("SP");
   const [countryCode, setCountryCode] = useState("BR");
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -44,16 +46,48 @@ export const useWeatherData = (): UseWeatherDataReturn => {
     return iconMap[openWeatherIcon] || 'sunny';
   };
 
-   const handleGetCity = useCallback(async (lat?: number, lng?: number, cityName?: string) => {
+  const fetchLocationData = async (lat: number, lng: number): Promise<LocationData> => {
+    try {
+      const geoUrl = `/api/geolocation?lat=${lat}&lng=${lng}`;
+      const geoResponse = await fetch(geoUrl);
+      
+      if (!geoResponse.ok) {
+        console.warn('Erro ao buscar localização, usando padrão');
+        return {
+          city: 'Local Desconhecido',
+          state: '',
+          countryCode: '',
+          lat: lat,
+          lng: lng
+        };
+      }
+      
+      const locationData: LocationData = await geoResponse.json();
+      return locationData;
+    } catch (error) {
+      console.warn('Erro na geolocalização, retornando padrão:', error);
+      return {
+        city: 'Local Desconhecido',
+        state: '',
+        countryCode: '',
+        lat: lat,
+        lng: lng
+      };
+    }
+  };
+
+  const handleGetCity = useCallback(async (lat?: number, lng?: number, cityName?: string) => {
     setLoading(true);
     try {
       let apiUrl = "/api/weather?";
-      if (cityName) {
-        apiUrl += `city=${encodeURIComponent(cityName)}`;
-      } else if (lat && lng) {
+      let locationData: LocationData | null = null;
+
+      if (lat && lng) {
+        locationData = await fetchLocationData(lat, lng);
         apiUrl += `lat=${lat}&lng=${lng}`;
         setCurrentLocation({ lat, lng });
-        console.log('📍 Location updated from coordinates:', { lat, lng });
+      } else if (cityName) {
+        apiUrl += `city=${encodeURIComponent(cityName)}`;
       } else {
         throw new Error("Coordenadas ou nome da cidade são necessários");
       }
@@ -64,11 +98,42 @@ export const useWeatherData = (): UseWeatherDataReturn => {
       const data: OpenWeatherResponse = await response.json();
       if (data.error) throw new Error(data.error);
 
-      const city = data.current.name || "Local desconhecido";
-      const country = data.current.sys?.country || "";
+      if (!locationData && data.current.coord) {
+        try {
+          locationData = await fetchLocationData(
+            data.current.coord.lat, 
+            data.current.coord.lon
+          );
+        } catch (error) {
+          console.warn('Não foi possível obter dados de localização, usando padrão');
+          locationData = {
+            city: data.current.name || 'Local Desconhecido',
+            state: '',
+            countryCode: data.current.sys?.country || '',
+            lat: data.current.coord.lat,
+            lng: data.current.coord.lon
+          };
+        }
+      }
 
-      setSelectedCity(city);
-      setCountryCode(country);
+      if (locationData) {
+        setSelectedCity(locationData.city);
+        setSelectedState(locationData.state);
+        setCountryCode(locationData.countryCode);
+        
+        setCurrentLocation({
+          lat: locationData.lat,
+          lng: locationData.lng
+        });
+        
+      } else {
+        const city = data.current.name || "Local Desconhecido";
+        const country = data.current.sys?.country || "";
+        
+        setSelectedCity(city);
+        setCountryCode(country);
+        setSelectedState('');
+      }
 
       const currentData = data.current;
       const currentRain = currentData.rain ? (currentData.rain["1h"] || currentData.rain["3h"] || 0) : 0;
@@ -99,24 +164,11 @@ export const useWeatherData = (): UseWeatherDataReturn => {
 
       setWeather(weatherData);
 
-      if (currentData.coord) {
-        setCurrentLocation({
-          lat: currentData.coord.lat,
-          lng: currentData.coord.lon
-        });
-        console.log('📍 Location updated from city name:', { 
-          lat: currentData.coord.lat, 
-          lng: currentData.coord.lon,
-          city: city 
-        });
-      }
 
       if (data.forecast) {
         const detailed = processDetailedForecast(data.forecast.list);
         setDetailedForecast(detailed);
-      }
-
-      if (data.forecast) {
+        
         const hourly = processHourlyForecast(data.forecast.list);
         setHourlyForecast(hourly);
       }
@@ -167,8 +219,9 @@ export const useWeatherData = (): UseWeatherDataReturn => {
     }));
   };
 
-return {
+  return {
     selectedCity,
+    selectedState,
     countryCode,
     weather,
     detailedForecast,
