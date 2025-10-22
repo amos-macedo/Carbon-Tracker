@@ -40,13 +40,22 @@ export const WeatherOverview = ({
         <CardContent className="p-0">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid grid-cols-3 w-full">
-              <TabsTrigger value="today" className="text-xs sm:text-sm">
+              <TabsTrigger
+                value="today"
+                className="text-xs sm:text-sm cursor-pointer"
+              >
                 Hoje
               </TabsTrigger>
-              <TabsTrigger value="forecast" className="text-xs sm:text-sm">
+              <TabsTrigger
+                value="forecast"
+                className="text-xs sm:text-sm cursor-pointer"
+              >
                 5 Dias
               </TabsTrigger>
-              <TabsTrigger value="hourly" className="text-xs sm:text-sm">
+              <TabsTrigger
+                value="hourly"
+                className="text-xs sm:text-sm cursor-pointer"
+              >
                 24h Detalhado
               </TabsTrigger>
             </TabsList>
