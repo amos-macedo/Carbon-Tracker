@@ -17,7 +17,6 @@ export const useLocation = (
     null
   );
 
-  // Ref para controlar se já carregamos a localização inicial
   const hasLoadedInitialLocation = useRef(false);
 
   const updateSelectedLocation = useCallback((location: { lat: number; lng: number } | null) => {
@@ -55,20 +54,17 @@ export const useLocation = (
     );
   }, [handleGetCity, setSelectedLocation]);
 
-  // Carregar localização inicial - APENAS UMA VEZ
   useEffect(() => {
     if (typeof window === 'undefined' || hasLoadedInitialLocation.current) return;
 
     hasLoadedInitialLocation.current = true;
 
-    // Se já tem uma localização salva, usa ela
     if (selectedLocation) {
       console.log('📍 Usando localização salva:', selectedLocation);
       handleGetCity(selectedLocation.lat, selectedLocation.lng);
       return;
     }
 
-    // Se não tem localização salva, tenta geolocalização
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -79,7 +75,6 @@ export const useLocation = (
           handleGetCity(latitude, longitude);
         },
         () => {
-          // Fallback para São Paulo
           console.log('📍 Using São Paulo as fallback');
           const fallbackLocation = { lat: -23.5505, lng: -46.6333 };
           setSelectedLocation(fallbackLocation);
@@ -93,7 +88,7 @@ export const useLocation = (
       setSelectedLocation(fallbackLocation);
       handleGetCity(undefined, undefined, "São Paulo");
     }
-  }, [handleGetCity, setSelectedLocation, selectedLocation]); // Mantenha as dependências, mas o ref controla a execução
+  }, [handleGetCity, setSelectedLocation, selectedLocation]);
 
   return {
     selectedLocation,
