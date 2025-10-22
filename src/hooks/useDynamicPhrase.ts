@@ -3,7 +3,7 @@ import { COUNTRY_TO_LANGUAGE } from '@/utils/country-lng';
 import { BASE_PHRASES } from '@/utils/baseFhrase';
 
 export const useDynamicPhrase = () => {
-  const [dynamicPhrase, setDynamicPhrase] = useState("🌞 Um ótimo dia para caminhar e aproveitar o sol!");
+  const [dynamicPhrase, setDynamicPhrase] = useState("");
 
   const translateText = async (text: string, targetLang: string): Promise<string> => {
     if (targetLang === 'pt') return text;
