@@ -39,7 +39,13 @@ export type HourlyForecast = {
   feelsLike: number;
 };
 
-// types/api.ts - Adicione esses tipos
+export interface LocationData {
+  city: string;
+  state: string;
+  countryCode: string;
+  lat: number;
+  lng: number;
+}
 export interface OpenWeatherCurrent {
   coord: {
     lat: number;
@@ -109,3 +115,4 @@ export interface OpenWeatherResponse {
   forecast: OpenWeatherForecast;
   error?: string;
 }
+

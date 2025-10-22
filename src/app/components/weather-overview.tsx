@@ -13,9 +13,10 @@ import { WeatherData, DetailedForecast, HourlyForecast } from "@/types/api";
 import { TodayTab } from "@/components/today-tab";
 import { ForecastTab } from "@/components/forecast-tab";
 import { HourlyTab } from "@/components/hourly-tab";
+import { DynamicPhraseType } from "@/hooks/useDynamicPhrase";
 
 type WeatherOverviewProps = {
-  dynamicPhrase: string;
+  dynamicPhrase: DynamicPhraseType;
   weather: WeatherData;
   isDayTime: boolean;
   loading: boolean;

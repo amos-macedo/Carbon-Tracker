@@ -3,9 +3,10 @@ import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 import { WeatherData } from "@/types/api";
 import { Badge } from "./ui/badge";
 import { CustomTooltip } from "./forecast-tab";
+import { DynamicPhraseType } from "@/hooks/useDynamicPhrase";
 
 interface TodayTabProps {
-  dynamicPhrase: string;
+  dynamicPhrase: DynamicPhraseType;
   weather: WeatherData;
 }
 export type TooltipPayload = {
@@ -44,7 +45,15 @@ export const TodayTab = ({ dynamicPhrase, weather }: TodayTabProps) => {
   return (
     <div className="space-y-4">
       <div className="text-center py-2">
-        <p className="text-base sm:text-lg font-semibold">{dynamicPhrase}</p>
+        <p className="text-base sm:text-lg font-semibold">
+          {dynamicPhrase.dynamicPhrase}
+        </p>
+        {dynamicPhrase.ptVersion &&
+          dynamicPhrase.ptVersion !== dynamicPhrase.dynamicPhrase && (
+            <span className="text-sm text-white/70 italic">
+              {`"${dynamicPhrase.ptVersion}"`}
+            </span>
+          )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

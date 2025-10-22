@@ -7,6 +7,7 @@ import { useWeatherData } from "./useWeatherData";
 export const useWeather = () => {
   const {
     selectedCity,
+    selectedState,
     countryCode,
     weather,
     detailedForecast,
@@ -39,14 +40,13 @@ export const useWeather = () => {
 
   useEffect(() => {
     if (currentLocation) {
-      console.log('🔄 Sincronizando localização:', currentLocation);
       updateSelectedLocation(currentLocation);
     }
   }, [currentLocation, updateSelectedLocation]);
 
 
   useEffect(() => {
-    if (weather?.temp && countryCode) {
+    if (weather?.temp ) {
       generateDynamicPhrase(weather.temp, countryCode);
     }
   }, [weather?.temp, countryCode, generateDynamicPhrase]);
@@ -61,6 +61,7 @@ export const useWeather = () => {
   return {
 
     selectedCity,
+    selectedState,
     countryCode,
     weather,
     dynamicPhrase,
