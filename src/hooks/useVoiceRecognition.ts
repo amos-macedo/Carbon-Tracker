@@ -75,7 +75,6 @@ export const useVoiceRecognition = ({
 
     console.log('Comando limpo:', cleanCommand);
 
-    // Comandos especiais com ações reais
     const specialCommands: Record<string, () => void> = {
       "minha localização": onUseMyLocation,
       "localização atual": onUseMyLocation,
@@ -87,7 +86,6 @@ export const useVoiceRecognition = ({
       "londres": () => onHandleGetCity(undefined, undefined, "London"),
     };
 
-    // Verificar comandos especiais
     for (const [cmd, action] of Object.entries(specialCommands)) {
       if (lowerCommand.includes(cmd)) {
         console.log(`🚀 Executando comando especial: ${cmd}`);
@@ -97,7 +95,6 @@ export const useVoiceRecognition = ({
       }
     }
 
-    // Comando de cidade normal
     if (cleanCommand && cleanCommand.length > 2) {
       console.log(`🔍 Buscando cidade por voz: ${cleanCommand}`);
       setVoiceResponse(`🔍 Buscando dados para: ${cleanCommand}`);
@@ -105,7 +102,6 @@ export const useVoiceRecognition = ({
       return;
     }
 
-    // Comando não reconhecido
     if (cleanCommand.length <= 2) {
       setVoiceResponse("🎯 Por favor, especifique uma cidade (ex: 'clima em São Paulo')");
       return;

@@ -1,16 +1,17 @@
-import { useState, useCallback } from 'react';
+import { useLocalStorage } from './useLocalStorage';
 
 export const useFavorites = (selectedCity: string, countryCode: string) => {
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const [favorites, setFavorites] = useLocalStorage<string[]>('weather-favorites', []);
 
-  const toggleFavorite = useCallback(() => {
+  const toggleFavorite = () => {
     const cityKey = `${selectedCity}, ${countryCode}`;
+    
     setFavorites(prev =>
       prev.includes(cityKey)
         ? prev.filter(fav => fav !== cityKey)
         : [...prev, cityKey]
     );
-  }, [selectedCity, countryCode]);
+  };
 
   return {
     favorites,

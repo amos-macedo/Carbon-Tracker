@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useEffect, useRef, Suspense } from "react";
+import React, { useEffect, Suspense } from "react";
 import { SearchBar } from "@/app/components/search-bar";
-
 import { WeatherOverview } from "@/app/components/weather-overview";
 import { getTheme } from "@/utils/theme";
 import { useWeather } from "@/hooks/useWeather";
@@ -11,7 +10,6 @@ import { FavoritesCard } from "./components/favorites-card";
 import { WeatherInfos } from "./components/weather-infos";
 import toast from "react-hot-toast";
 
-// Importar InteractiveGlobe dinamicamente com SSR desabilitado
 const InteractiveGlobe = dynamic(
   () =>
     import("./components/interactive-globe").then(
@@ -55,21 +53,7 @@ export default function EnhancedWeatherApp() {
   } = useWeather();
 
   useEffect(() => {
-    toast.success(dynamicPhrase, {
-      style: {
-        background: "#1e293b",
-        color: "#f1f5f9",
-        border: "1px solid #334155",
-        borderRadius: "8px",
-        fontSize: "14px",
-        padding: "12px 16px",
-      },
-      iconTheme: {
-        primary: "#10b981",
-        secondary: "#fff",
-      },
-      duration: 4000,
-    });
+    toast.success(dynamicPhrase);
   }, [dynamicPhrase]);
 
   if (loading && !weather) {
